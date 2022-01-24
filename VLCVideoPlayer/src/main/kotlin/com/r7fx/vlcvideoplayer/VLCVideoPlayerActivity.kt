@@ -62,6 +62,7 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
     private val centerMessageHideDelayMs = 1000L
     private val doubleTapDeltaThresholdMs = 300L
     private var chapters: List<MediaPlayer.Chapter>? = null
+    private var chaptersAdded = false
     private var uiHideSchedulerJob: Job? = null
     private var centerMessageJob: Job? = null
     private var isControlVisible = true
@@ -431,30 +432,34 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
                     }
 
                     mediaPlayer.getChapters(mediaPlayer.title)?.let {
-                        chapters = it.asList()
+                        if (!chaptersAdded) {
+                            chapters = it.asList()
 
-                        binding.txtChapter.isVisible = true
-                        binding.btnChapterList.isVisible = true
-                        binding.btnNextChapter.isVisible = true
-                        binding.btnPrevChapter.isVisible = true
+                            binding.txtChapter.isVisible = true
+                            binding.btnChapterList.isVisible = true
+                            binding.btnNextChapter.isVisible = true
+                            binding.btnPrevChapter.isVisible = true
 
-                        chapters?.forEachIndexed { index, chapter ->
-                            val item = layoutInflater.inflate(R.layout.item_chapter, null)
-                            item.findViewById<TextView>(R.id.txtChapterList).text = chapter.name
-                            item.setOnClickListener {
-                                mediaPlayer.chapter = index
-                                binding.linChapterListBox.isVisible = false
+                            chapters?.forEachIndexed { index, chapter ->
+                                val item = layoutInflater.inflate(R.layout.item_chapter, null)
+                                item.findViewById<TextView>(R.id.txtChapterList).text = chapter.name
+                                item.setOnClickListener {
+                                    mediaPlayer.chapter = index
+                                    binding.linChapterListBox.isVisible = false
+                                }
+
+                                binding.linChapterListHost.addView(item)
                             }
 
-                            binding.linChapterListHost.addView(item)
-                        }
+                            binding.txtChapter.setOnClickListener {
+                                binding.linChapterListBox.isVisible = true
+                            }
 
-                        binding.txtChapter.setOnClickListener {
-                            binding.linChapterListBox.isVisible = true
-                        }
+                            binding.btnChapterList.setOnClickListener {
+                                binding.linChapterListBox.isVisible = true
+                            }
 
-                        binding.btnChapterList.setOnClickListener {
-                            binding.linChapterListBox.isVisible = true
+                            chaptersAdded = true
                         }
                     }
 
