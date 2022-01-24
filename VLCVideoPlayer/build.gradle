@@ -72,7 +72,7 @@ afterEvaluate {
                 from components.release
 
                 groupId = 'com.github.avivbintangaringga'
-                artifactId = 'vlcvideoplayer'
+                artifactId = 'VLCVideoPlayer'
                 version = ver
             }
         }
