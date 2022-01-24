@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="colorEditTextBorder" format="color" />
+    <attr name="colorEditTextBackground" format="color" />
+    <attr name="colorTextTitle" format="color" />
+    <attr name="colorTextTitleBackground" format="color" />
+    <attr name="colorPrimaryTranslucent" format="color" />
+    <attr name="colorInfoIconTint" format="color" />
+    <attr name="colorInfoText" format="color" />
+
+    <attr name="fontSizeTitle" format="dimension" />
+    <attr name="fontSizeFileInfo" format="dimension" />
+</resources>

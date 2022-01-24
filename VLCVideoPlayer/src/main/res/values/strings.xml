@@ -1,0 +1,4 @@
+<resources>
+    <string name="title">VLC Video Player Library</string>
+    <string name="time_default">--:--</string>
+</resources>
