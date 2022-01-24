@@ -4,6 +4,8 @@ plugins {
     id 'kotlin-kapt'
 }
 
+def ver = "1.0.0"
+
 android {
     compileSdk 31
 
@@ -11,7 +13,7 @@ android {
         minSdk 22
         targetSdk 31
         versionCode 1
-        versionName "1.0"
+        versionName ver
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         consumerProguardFiles "consumer-rules.pro"
@@ -60,4 +62,18 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                groupId = 'com.github.avivbintangaringga'
+                artifactId = 'vlcvideoplayer'
+                version = ver
+            }
+        }
+    }
 }
