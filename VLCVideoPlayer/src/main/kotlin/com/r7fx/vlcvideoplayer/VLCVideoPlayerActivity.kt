@@ -13,6 +13,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
 import android.view.animation.DecelerateInterpolator
+import android.widget.TextView
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -222,6 +223,8 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
                     when (event?.action) {
                         MotionEvent.ACTION_DOWN -> {
                             lastX = event.x
+
+                            binding.linChapterListBox.isVisible = false
                         }
                         MotionEvent.ACTION_MOVE -> {
                             deltaX = event.x - lastX
@@ -429,8 +432,30 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
 
                     mediaPlayer.getChapters(mediaPlayer.title)?.let {
                         chapters = it.asList()
-                        binding.btnNextChapter.visibility = View.VISIBLE
-                        binding.btnPrevChapter.visibility = View.VISIBLE
+
+                        binding.txtChapter.isVisible = true
+                        binding.btnChapterList.isVisible = true
+                        binding.btnNextChapter.isVisible = true
+                        binding.btnPrevChapter.isVisible = true
+
+                        chapters?.forEachIndexed { index, chapter ->
+                            val item = layoutInflater.inflate(R.layout.item_chapter, null)
+                            item.findViewById<TextView>(R.id.txtChapterList).text = chapter.name
+                            item.setOnClickListener {
+                                mediaPlayer.chapter = index
+                                binding.linChapterListBox.isVisible = false
+                            }
+
+                            binding.linChapterListHost.addView(item)
+                        }
+
+                        binding.txtChapter.setOnClickListener {
+                            binding.linChapterListBox.isVisible = true
+                        }
+
+                        binding.btnChapterList.setOnClickListener {
+                            binding.linChapterListBox.isVisible = true
+                        }
                     }
 
                     scheduleHideControl()

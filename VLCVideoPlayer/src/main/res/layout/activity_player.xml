@@ -12,19 +12,20 @@
         android:id="@+id/vlcVideoLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:foreground="@drawable/shigatsu" />
+        tools:foreground="@drawable/shigatsu">
+
+        <View
+            android:id="@+id/touchPad"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="false" />
+    </org.videolan.libvlc.util.VLCVideoLayout>
 
     <ImageView
         android:id="@+id/imgThumbnail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitCenter" />
-
-    <View
-        android:id="@+id/touchPad"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="false" />
 
     <ProgressBar
         android:id="@+id/progressBuffering"
@@ -72,6 +73,40 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/linChapterListBox"
+        android:visibility="gone"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginVertical="48dp"
+        tools:visibility="visible"
+        android:clickable="true"
+        android:focusable="true"
+        android:translationZ="10dp"
+        android:background="@drawable/bg_center_message"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp"
+            android:gravity="center"
+            android:text="Chapters"
+            android:textStyle="bold" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/linChapterListHost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </ScrollView>
+    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/controlBottom"
@@ -85,11 +120,12 @@
         android:paddingBottom="30dp">
 
         <TextView
+            android:visibility="gone"
             android:id="@+id/txtChapter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:textAlignment="center"
+            android:gravity="center"
             android:textColor="@color/white"
             android:textSize="12sp"
             tools:text="Chapter 1" />
@@ -136,59 +172,85 @@
             android:textColor="@color/white"
             android:textSize="12sp" />
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/slider"
             android:layout_marginTop="-8dp"
-            android:animateLayoutChanges="true"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:animateLayoutChanges="true">
+
+            <LinearLayout
+                android:id="@+id/linControls"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:animateLayoutChanges="true"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/btnPrevChapter"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginHorizontal="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_chapter_prev"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <ImageButton
+                    android:id="@+id/btnBackward"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginHorizontal="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_media_backward" />
+
+                <ImageButton
+                    android:id="@+id/btnPlayPause"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginHorizontal="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/ic_media_play" />
+
+                <ImageButton
+                    android:id="@+id/btnForward"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginHorizontal="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_media_forward" />
+
+                <ImageButton
+                    android:id="@+id/btnNextChapter"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginHorizontal="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_chapter_next"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
 
             <ImageButton
-                android:id="@+id/btnPrevChapter"
+                android:id="@+id/btnChapterList"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginHorizontal="4dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="4dp"
+                android:layout_toEndOf="@id/linControls"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_chapter_prev"
-                android:visibility="gone" />
+                android:src="@drawable/ic_chapter_list"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-            <ImageButton
-                android:id="@+id/btnBackward"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginHorizontal="4dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_media_backward" />
-
-            <ImageButton
-                android:id="@+id/btnPlayPause"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginHorizontal="4dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:scaleType="fitXY"
-                android:src="@drawable/ic_media_play" />
-
-            <ImageButton
-                android:id="@+id/btnForward"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginHorizontal="4dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_media_forward" />
-
-            <ImageButton
-                android:id="@+id/btnNextChapter"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginHorizontal="4dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_chapter_next"
-                android:visibility="gone" />
-
-        </LinearLayout>
+        </RelativeLayout>
 
     </RelativeLayout>
 </RelativeLayout>
