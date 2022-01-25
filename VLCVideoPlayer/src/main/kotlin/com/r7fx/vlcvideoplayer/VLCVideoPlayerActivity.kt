@@ -38,23 +38,20 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
         private const val ARG_URL = "url"
         private const val ARG_TITLE = "title"
         private const val ARG_THUMBNAIL_URL = "thumbnail_url"
-        private const val ARG_AUTOPLAY = "autoplay"
 
-        fun open(context: Context, videoUrl: String, title: String? = null, thumbnailUrl: String? = null, autoplay: Boolean? = true) {
+        fun open(context: Context, videoUrl: String?, title: String? = null, thumbnailUrl: String? = null, delayedPlay: (suspend (scope: CoroutineScope, play: (url: String) -> Unit) -> Unit)? = null) {
+            onDelayedPlay = delayedPlay
+
             context.startActivity(
                 Intent(context, VLCVideoPlayerActivity::class.java).apply {
                     putExtra(ARG_URL, videoUrl)
                     putExtra(ARG_TITLE, title)
                     putExtra(ARG_THUMBNAIL_URL, thumbnailUrl)
-                    putExtra(ARG_AUTOPLAY, autoplay)
                 }
             )
         }
 
-        private var onLifecycleScope: (suspend (scope: CoroutineScope, play: (url: String) -> Unit) -> Unit)? = null
-        fun delayedPlay(method: suspend (scope: CoroutineScope, play: (url: String) -> Unit) -> Unit) {
-            onLifecycleScope = method
-        }
+        private var onDelayedPlay: (suspend (scope: CoroutineScope, play: (url: String) -> Unit) -> Unit)? = null
     }
 
     private val libVLC: LibVLC by lazy { LibVLC(this) }
@@ -63,7 +60,6 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
     private val url by lazy { intent.getStringExtra(ARG_URL) }
     private val title by lazy { intent.getStringExtra(ARG_TITLE) }
     private val thumbnailUrl by lazy { intent.getStringExtra(ARG_THUMBNAIL_URL) }
-    private val autoplay by lazy { intent.getBooleanExtra(ARG_AUTOPLAY, true) }
     private val maxStep = 10000
     private val jumpDurationMs = 5000L
     private val uiAnimationDurationMs = 300L
@@ -86,12 +82,12 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
         binding.slider.valueTo = maxStep.toFloat()
         binding.slider.isEnabled = false
 
-        if (autoplay) {
+        if (onDelayedPlay == null && url != null) {
             mediaPlayer.play(Uri.parse(url))
         }
 
         lifecycleScope.launch {
-            onLifecycleScope?.invoke(this) {
+            onDelayedPlay?.invoke(this) {
                 mediaPlayer.play(Uri.parse(it))
             }
         }
