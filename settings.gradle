@@ -1,2 +1,2 @@
 include ':VLCVideoPlayer'
-//include ':vlctestapp'
+include ':vlctestapp'

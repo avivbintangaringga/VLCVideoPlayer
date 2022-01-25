@@ -5,7 +5,8 @@ plugins {
     id 'maven-publish'
 }
 
-def ver = "1.1.1"
+def vr = "1.2.0"
+def vc = 5
 
 android {
     compileSdk 31
@@ -13,8 +14,8 @@ android {
     defaultConfig {
         minSdk 22
         targetSdk 31
-        versionCode 1
-        versionName ver
+        versionCode vc
+        versionName vr
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         consumerProguardFiles "consumer-rules.pro"
@@ -73,7 +74,7 @@ afterEvaluate {
 
                 groupId = 'com.github.avivbintangaringga'
                 artifactId = 'VLCVideoPlayer'
-                version = ver
+                version = vr
             }
         }
     }

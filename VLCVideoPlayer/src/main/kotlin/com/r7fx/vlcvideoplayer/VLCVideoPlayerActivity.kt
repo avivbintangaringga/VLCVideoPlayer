@@ -24,6 +24,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.r7fx.vlcvideoplayer.bindingadapter.loadUrl
 import com.r7fx.vlcvideoplayer.databinding.ActivityPlayerBinding
 import com.r7fx.vlcvideoplayer.util.StringUtil
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -34,18 +35,25 @@ import kotlin.math.abs
 
 class VLCVideoPlayerActivity : AppCompatActivity() {
     companion object {
-        const val ARG_URL = "url"
-        const val ARG_TITLE = "title"
-        const val ARG_THUMBNAIL_URL = "thumbnail_url"
+        private const val ARG_URL = "url"
+        private const val ARG_TITLE = "title"
+        private const val ARG_THUMBNAIL_URL = "thumbnail_url"
+        private const val ARG_AUTOPLAY = "autoplay"
 
-        fun open(context: Context, videoUrl: String, title: String? = null, thumbnailUrl: String? = null) {
+        fun open(context: Context, videoUrl: String, title: String? = null, thumbnailUrl: String? = null, autoplay: Boolean? = true) {
             context.startActivity(
                 Intent(context, VLCVideoPlayerActivity::class.java).apply {
                     putExtra(ARG_URL, videoUrl)
                     putExtra(ARG_TITLE, title)
                     putExtra(ARG_THUMBNAIL_URL, thumbnailUrl)
+                    putExtra(ARG_AUTOPLAY, autoplay)
                 }
             )
+        }
+
+        private var onLifecycleScope: (suspend (scope: CoroutineScope, play: (url: String) -> Unit) -> Unit)? = null
+        fun delayedPlay(method: suspend (scope: CoroutineScope, play: (url: String) -> Unit) -> Unit) {
+            onLifecycleScope = method
         }
     }
 
@@ -55,6 +63,7 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
     private val url by lazy { intent.getStringExtra(ARG_URL) }
     private val title by lazy { intent.getStringExtra(ARG_TITLE) }
     private val thumbnailUrl by lazy { intent.getStringExtra(ARG_THUMBNAIL_URL) }
+    private val autoplay by lazy { intent.getBooleanExtra(ARG_AUTOPLAY, true) }
     private val maxStep = 10000
     private val jumpDurationMs = 5000L
     private val uiAnimationDurationMs = 300L
@@ -77,29 +86,30 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
         binding.slider.valueTo = maxStep.toFloat()
         binding.slider.isEnabled = false
 
-//        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-//        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-//        window.statusBarColor = Color.TRANSPARENT
-//        window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-
-//        viewModel.url.observe(this) {
+        if (autoplay) {
             mediaPlayer.play(Uri.parse(url))
-//        }
+        }
+
+        lifecycleScope.launch {
+            onLifecycleScope?.invoke(this) {
+                mediaPlayer.play(Uri.parse(it))
+            }
+        }
 
         binding.btnPlayPause.setOnClickListener {
             if (mediaPlayer.isPlaying) {
                 mediaPlayer.pause()
-                displayCenterMessage("PAUSE")
+                displayCenterMessage("Pause", R.drawable.ic_media_pause)
             } else {
                 mediaPlayer.play()
-                displayCenterMessage("PLAY")
+                displayCenterMessage("Play", R.drawable.ic_media_play)
             }
         }
 
         binding.btnPrevChapter.setOnClickListener {
             if (mediaPlayer.isSeekable) {
                 mediaPlayer.previousChapter()
-                displayCenterMessage("PREVIOUS CHAPTER")
+                displayCenterMessage("Prev Chapter", R.drawable.ic_chapter_prev)
                 scheduleHideControl()
             }
         }
@@ -107,7 +117,7 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
         binding.btnNextChapter.setOnClickListener {
             if (mediaPlayer.isSeekable) {
                 mediaPlayer.nextChapter()
-                displayCenterMessage("NEXT CHAPTER")
+                displayCenterMessage("Next Chapter", R.drawable.ic_chapter_next)
                 scheduleHideControl()
             }
         }
@@ -122,12 +132,14 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
                 if (jumpMs > 0) {
                     displayCenterMessage(
                         "+"
-                            .plus(StringUtil.longMillisToTimeStamp(jumpMs))
+                            .plus(StringUtil.longMillisToTimeStamp(jumpMs)),
+                        R.drawable.ic_media_forward
                     )
                 } else {
                     displayCenterMessage(
                         "-"
-                            .plus(StringUtil.longMillisToTimeStamp(abs(jumpMs)))
+                            .plus(StringUtil.longMillisToTimeStamp(abs(jumpMs))),
+                        R.drawable.ic_media_backward
                     )
                 }
             }
@@ -206,12 +218,14 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
                 if (ms > 0) {
                     displayCenterMessage(
                         "+"
-                            .plus(StringUtil.longMillisToTimeStamp(ms))
+                            .plus(StringUtil.longMillisToTimeStamp(ms)),
+                        R.drawable.ic_media_forward
                     )
                 } else {
                     displayCenterMessage(
                         "-"
-                            .plus(StringUtil.longMillisToTimeStamp(abs(ms)))
+                            .plus(StringUtil.longMillisToTimeStamp(abs(ms))),
+                        R.drawable.ic_media_backward
                     )
                 }
             }
@@ -600,17 +614,16 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayCenterMessage(text: String) {
+    private fun displayCenterMessage(text: String, resId: Int) {
         centerMessageJob?.cancel()
-        binding.txtCenterMessage.text = text
 
-        if (!binding.txtCenterMessage.isVisible) {
-            binding.txtCenterMessage.visibility = View.VISIBLE
-        }
+        binding.imgCenterMessage.setImageResource(resId)
+        binding.txtCenterMessage.text = text
+        binding.linCenterMessage.isVisible = true
 
         centerMessageJob = lifecycleScope.launch {
             delay(centerMessageHideDelayMs)
-            binding.txtCenterMessage.visibility = View.GONE
+            binding.linCenterMessage.isVisible = false
         }
     }
 
