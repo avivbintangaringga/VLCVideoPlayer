@@ -87,7 +87,7 @@ class VLCVideoPlayerActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            onDelayedPlay?.invoke(this) {
+            onDelayedPlay?.invoke(lifecycleScope) {
                 mediaPlayer.play(Uri.parse(it))
             }
         }
