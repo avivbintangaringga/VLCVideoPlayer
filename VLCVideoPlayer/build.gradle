@@ -5,8 +5,8 @@ plugins {
     id 'maven-publish'
 }
 
-def vr = "1.2.2"
-def vc = 7
+def vr = "1.2.3"
+def vc = 8
 
 android {
     compileSdk 31
